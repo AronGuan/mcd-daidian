@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>麦麦代点 · 原型 v0.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F7F5;--card:#FFFFFF;--line:#E8E7E2;--line2:#D3D1C7;
+  --tx:#2C2C2A;--tx2:#5F5E5A;--tx3:#888780;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-dk:#0C447C;
+  --teal:#0F6E56;--teal-bg:#E1F5EE;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --green:#3B6D11;--green-bg:#EAF3DE;
+}
+body{background:var(--bg);color:var(--tx);font-size:14px;line-height:1.65;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px}
+header.head{margin-bottom:24px}
+h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.prov{font-size:12px;color:var(--tx2);background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:9px 12px;display:inline-block;margin-top:8px}
+.prov b{font-weight:600;color:var(--tx)}
+.prov .ok{color:var(--teal);font-weight:600}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.panel h2{font-size:15px;font-weight:600;margin-bottom:4px}
+.panel .hint{font-size:12px;color:var(--tx3);margin-bottom:16px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.field .cur{font-size:12px;color:var(--tx2);font-weight:400;float:right}
+select,input[type=range]{width:100%;font-family:inherit;font-size:13px}
+select{padding:8px 10px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--tx)}
+input[type=range]{accent-color:var(--blue);margin-top:6px}
+.chks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.chk{display:flex;align-items:center;gap:7px;font-size:13px;
+  border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;user-select:none}
+.chk:hover{border-color:var(--line2)}
+.chk input{accent-color:var(--blue);cursor:pointer}
+.chk.on{background:var(--blue-bg);border-color:var(--blue)}
+.outs{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{font-size:15px;font-weight:600;margin-bottom:3px}
+.card .sub{font-size:12px;color:var(--tx3);margin-bottom:14px}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  padding:9px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:none}
+.row .nm{font-size:14px}
+.row .pr{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mod{font-size:12px;color:var(--blue);margin-top:3px}
+.mod.warn{color:var(--amber)}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;margin-left:6px;
+  border:1px solid;vertical-align:1px}
+.b-exact{color:var(--green);border-color:#97C459;background:var(--green-bg)}
+.b-warm{color:var(--amber);border-color:#EF9F27;background:var(--amber-bg)}
+.totals{border-top:1px solid var(--line);margin-top:8px;padding-top:12px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tot{background:#F7F7F5;border-radius:8px;padding:9px 11px}
+.tot .k{font-size:11px;color:var(--tx3)}
+.tot .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:1px}
+.tot .v small{font-size:11px;font-weight:400;color:var(--tx3);margin-left:3px}
+.tot.ok .v{color:var(--green)}
+.tot.bad .v{color:var(--red)}
+.prep{font-size:17px;font-weight:500;line-height:2}
+.prep .no{color:var(--red)}
+.prep .idle{color:var(--tx3);font-weight:400}
+.prep .idx{display:inline-block;width:22px;color:var(--tx3);font-weight:400}
+.note-card{background:#F7F7F5;border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.8;
+  white-space:pre-wrap;font-family:inherit}
+.alert{border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px}
+.alert.warn{background:var(--amber-bg);color:var(--amber)}
+.alert.info{background:var(--blue-bg);color:var(--blue-dk)}
+.btnrow{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+button{font-family:inherit;font-size:13px;padding:8px 15px;border-radius:8px;
+  border:1px solid var(--line2);background:#fff;color:var(--tx);cursor:pointer}
+button:hover{border-color:var(--tx3)}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+button.primary:hover{background:var(--blue-dk);border-color:var(--blue-dk)}
+.boundary{margin-top:26px;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--amber);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--tx2);line-height:1.75}
+.boundary b{color:var(--tx);font-weight:600}
+.trace{font-size:11px;color:var(--tx3);margin-top:10px;font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="head">
+  <h1>麦麦代点</h1>
+  <p style="color:var(--tx2);font-size:13px">替别人点麦当劳时，你手里的不是菜单，是一堆不能违反的约束。</p>
+  <div class="prov">
+    数据来源：麦当劳中国 MCP 真实调用 ·
+    <b id="stName"></b>（<span id="stCode"></span>）·
+    <span id="stTime"></span> · <span class="ok">全部为实时抓取，无模拟数据</span>
+  </div>
+</header>
+
+<div class="grid">
+
+  <section class="panel">
+    <h2>① 人物卡</h2>
+    <p class="hint">告诉他给谁点、有什么限制，其余交给我。</p>
+
+    <div class="field">
+      <label>给谁点</label>
+      <select id="fRel">
+        <option value="妈妈">妈妈</option>
+        <option value="爸爸">爸爸</option>
+        <option value="孩子">孩子</option>
+        <option value="朋友">朋友</option>
+        <option value="同事">同事</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>硬禁忌<span class="cur">可去掉的配料会自动改写</span></label>
+      <div class="chks" id="fAvoid"></div>
+    </div>
+
+    <div class="field">
+      <label>单餐钠上限<span class="cur" id="vNa">800 mg</span></label>
+      <input type="range" id="fNa" min="400" max="1500" step="50" value="800">
+    </div>
+
+    <div class="field">
+      <label>单餐热量上限<span class="cur" id="vKcal">900 kcal</span></label>
+      <input type="range" id="fKcal" min="400" max="1200" step="50" value="900">
+    </div>
+
+    <div class="field">
+      <label>这一餐预算<span class="cur" id="vBudget">¥50</span></label>
+      <input type="range" id="fBudget" min="20" max="80" step="5" value="50">
+    </div>
+
+    <div class="field" style="margin-bottom:0">
+      <label>他想吃的</label>
+      <select id="fPrefer"><option value="">不指定</option></select>
+    </div>
+  </section>
+
+  <div class="outs">
+
+    <div class="card">
+      <h3>② 给点餐人的餐单</h3>
+      <p class="sub">每一道都标了「改写了什么」——这是可信度的来源</p>
+      <div id="alertBox"></div>
+      <div id="menuList"></div>
+      <div class="totals" id="totals"></div>
+    </div>
+
+    <div class="card">
+      <h3>③ 给店员看的特制清单</h3>
+      <p class="sub">大字号，可直接念；依据 query-meal-detail 的可增减配料字段生成</p>
+      <div class="prep" id="prepList"></div>
+      <div class="btnrow">
+        <button class="primary" id="btnCopyPrep">复制清单</button>
+        <button id="btnCopyOrder">复制下单指令</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>④ 给收餐人的说明卡</h3>
+      <p class="sub">可复制发微信</p>
+      <div class="note-card" id="noteText"></div>
+      <div class="btnrow">
+        <button class="primary" id="btnCopyNote">复制说明卡</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="boundary">
+  <b>边界声明（产品内固定展示）</b><br>
+  本工具基于麦当劳官方 MCP 的公开数据做「配料层面」的规划，<b>不构成医疗、营养或过敏安全建议</b>。<br>
+  营养值为官方<b>标准配方</b>数值；配料改动后的实际数值官方未提供，故不做量化承诺（下方标注为「定性改善」）。<br>
+  官方营养接口不含过敏原字段，涉花生、坚果、麸质等高危过敏请以门店现场确认为准。<br>
+  <span class="trace" id="trace"></span>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   数据快照 —— 全部来自麦当劳 MCP 真实调用
+   query-nearby-stores / query-meals / query-meal-detail / list-nutrition-foods
+   抓取时间 2026-10-10 13:03-13:04 (GMT+8)
+   ============================================================ */
+const STORE = {
+  code: "1450713",
+  name: "麦当劳上海黄浦华旭国际大厦餐厅",
+  address: "南京东路街道西藏中路336号",
+  snapshot: "2026-10-10 13:04",
+  menuCount: 128
+};
+
+/* 特制项：sel = selectedKey（保留），unsel = unselectedKey（去掉）
+   官方传参规则：含 unselectedKey 的特调组，组内所有项都必须传，
+   保留项传 selectedKey，去掉项传 unselectedKey。 */
+const ITEMS = [
+  {code:"1106",name:"培根蔬萃双层牛堡",price:24.5,role:"main",meats:["牛","猪"],dairy:false,spicy:false,
+   kcal:442,protein:24,fat:23,carbs:34,sodium:728,calcium:73,match:"exact",
+   mod:[{c:"100136",n:"麦香鸡酱",sel:"0-1",unsel:"0-0"},{c:"100160",n:"番茄片",sel:"0-1",unsel:"0-0"},
+        {c:"100168",n:"生菜",sel:"0-1",unsel:"0-0"},{c:"100214",n:"番茄酱",sel:"0-1",unsel:"0-0"},
+        {c:"103386",n:"培根",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1406",name:"板烧鸡腿堡",price:23.5,role:"main",meats:["鸡"],dairy:false,spicy:false,
+   kcal:391,protein:23,fat:17,carbs:35,sodium:1041,calcium:93,match:"exact",
+   mod:[{c:"102201",n:"烤味酱",sel:"0-1",unsel:"0-0"},{c:"120512",n:"切块生菜",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1600",name:"麦香鱼",price:22.5,role:"main",meats:["鱼"],dairy:true,spicy:false,
+   kcal:325,protein:16,fat:13,carbs:35,sodium:556,calcium:99,match:"exact",
+   mod:[{c:"100126",n:"麦香鱼酱",sel:"0-1",unsel:"0-0"},{c:"100141",n:"吉士",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1450",name:"麦香鸡",price:17,role:"main",meats:["鸡"],dairy:false,spicy:false,
+   kcal:369,protein:15,fat:17,carbs:39,sodium:731,calcium:73,match:"exact",
+   mod:[{c:"100136",n:"麦香鸡酱",sel:"0-1",unsel:"0-0"},{c:"100168",n:"生菜",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1440",name:"麦辣鸡腿汉堡",price:22.5,role:"main",meats:["鸡"],dairy:false,spicy:true,
+   kcal:485,protein:24,fat:24,carbs:42,sodium:1208,calcium:154,match:"exact",
+   mod:[{c:"100136",n:"麦香鸡酱",sel:"0-1",unsel:"0-0"},{c:"120512",n:"切块生菜",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1120",name:"双层吉士汉堡",price:23,role:"main",meats:["牛"],dairy:true,spicy:false,
+   kcal:429,protein:27,fat:22,carbs:31,sodium:1017,calcium:232,match:"exact",
+   mod:[{c:"100141",n:"吉士",sel:"0-1",unsel:"0-0"},{c:"100202",n:"酸黄瓜",sel:"0-1",unsel:"0-0"},
+        {c:"100212",n:"洋葱粒",sel:"0-1",unsel:"0-0"},{c:"100214",n:"番茄酱",sel:"0-1",unsel:"0-0"},
+        {c:"102230",n:"芥末酱",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"1100",name:"巨无霸",price:25.5,role:"main",meats:["牛"],dairy:true,spicy:false,
+   kcal:513,protein:27,fat:26,carbs:42,sodium:961,calcium:171,match:"exact",
+   mod:[{c:"100116",n:"巨无霸酱",sel:"0-1",unsel:"0-0"},{c:"100141",n:"吉士",sel:"0-1",unsel:"0-0"},
+        {c:"100168",n:"生菜",sel:"0-1",unsel:"0-0"},{c:"100202",n:"酸黄瓜",sel:"0-1",unsel:"0-0"},
+        {c:"100212",n:"洋葱粒",sel:"0-1",unsel:"0-0"}]},
+
+  {code:"4648",name:"不素之霸双层牛堡",price:26.5,role:"main",meats:["牛"],dairy:false,spicy:false,
+   kcal:493,protein:28,fat:27,carbs:34,sodium:1012,calcium:75,match:"exact",mod:[]},
+
+  {code:"9900003586",name:"双层深海鳕鱼堡",price:24,role:"main",meats:["鱼"],dairy:false,spicy:false,
+   kcal:485,protein:28,fat:21,carbs:46,sodium:917,calcium:147,match:"exact",mod:[]},
+
+  {code:"1401",name:"麦乐鸡（5块）",price:14,role:"main",meats:["鸡"],dairy:false,spicy:false,
+   kcal:213,protein:12,fat:12,carbs:13,sodium:422,calcium:9,match:"warm",mod:[],note:"份数按 5 块计"},
+
+  {code:"4437",name:"玉米杯",price:13,role:"side",meats:[],dairy:false,spicy:false,
+   kcal:53,protein:2,fat:1,carbs:7,sodium:1,calcium:6,match:"warm",mod:[],note:"官方仅提供大/小杯数值，此处按小杯计"},
+
+  {code:"6102",name:"苹果片",price:7,role:"side",meats:[],dairy:false,spicy:false,
+   kcal:32,protein:0,fat:0,carbs:7,sodium:0,calcium:18,match:"exact",mod:[]},
+
+  {code:"520445",name:"薄皮焦香V翅",price:16,role:"side",meats:["鸡"],dairy:false,spicy:false,
+   kcal:192,protein:17,fat:11,carbs:6,sodium:594,calcium:15,match:"exact",mod:[]},
+
+  {code:"4810",name:"薯条",price:13.5,role:"side",meats:[],dairy:false,spicy:false,
+   kcal:289,protein:4,fat:12,carbs:38,sodium:165,calcium:18,match:"warm",mod:[],note:"官方分大/中/小，此处按中薯计"},
+
+  {code:"3505",name:"锡兰红茶",price:11.5,role:"drink",meats:[],dairy:false,spicy:false,
+   kcal:2,protein:0,fat:0,carbs:0,sodium:0,calcium:5,match:"exact",mod:[]},
+
+  {code:"3755",name:"纯牛奶（盒装）",price:10.5,role:"drink",meats:[],dairy:true,spicy:false,
+   kcal:129,protein:7,fat:7,carbs:10,sodium:73,calcium:231,match:"exact",mod:[]},
+
+  {code:"520689",name:"鲜萃咖啡",price:9.5,role:"drink",meats:[],dairy:false,spicy:false,
+   kcal:15,protein:1,fat:0,carbs:3,sodium:2,calcium:6,match:"warm",mod:[],note:"按小杯计"},
+
+  {code:"9900008751",name:"可乐",price:9.5,role:"drink",meats:[],dairy:false,spicy:false,
+   kcal:147,protein:0,fat:0,carbs:36,sodium:0,calcium:10,match:"warm",mod:[],note:"按中杯计"},
+
+  {code:"6362",name:"100% 苹果汁（盒装）",price:11.5,role:"drink",meats:[],dairy:false,spicy:false,
+   kcal:88,protein:0,fat:0,carbs:21,sodium:0,calcium:0,match:"exact",mod:[]}
+];
+
+const AVOIDS = [
+  {id:"beef",   label:"不吃牛肉", meat:"牛"},
+  {id:"pork",   label:"不吃猪肉", meat:"猪"},
+  {id:"chicken",label:"不吃鸡肉", meat:"鸡"},
+  {id:"fish",   label:"不吃鱼",   meat:"鱼"},
+  {id:"dairy",  label:"乳糖不耐", dairy:true},
+  {id:"spicy",  label:"不吃辣",   spicy:true}
+];
+
+/* ============================================================
+   求解器
+   ============================================================ */
+function nutOf(list){
+  return list.reduce((a,i)=>({kcal:a.kcal+i.kcal,protein:a.protein+i.protein,
+    sodium:a.sodium+i.sodium,price:a.price+i.price}),{kcal:0,protein:0,sodium:0,price:0});
+}
+
+/* 硬约束：返回 {ok, drops[]}
+   drops = 需要去掉的配料；若某个禁忌配料无法通过特调去掉，则该项不可用 */
+const MEAT_MOD = { "猪": ["培根"] };   // 肉类中唯一可特调去除的是培根
+
+function hardCheck(item, av){
+  const drops = [];
+  for(const a of av){
+    if(a.meat && item.meats.indexOf(a.meat) >= 0){
+      const rem = item.mod.find(v => (MEAT_MOD[a.meat]||[]).indexOf(v.n) >= 0);
+      if(rem) drops.push(rem.n);
+      else return {ok:false, drops:[]};
+    }
+    if(a.dairy && item.dairy){
+      const rem = item.mod.find(v => v.n.indexOf("吉士") >= 0);
+      if(rem) drops.push("吉士");
+      else return {ok:false, drops:[]};
+    }
+    if(a.spicy && item.spicy) return {ok:false, drops:[]};
+  }
+  return {ok:true, drops};
+}
+
+/* 高钠配料启发式：名字含「酱」视为酱料（钠的主要来源之一） */
+function saucesOf(item){
+  return item.mod.filter(v=>v.n.indexOf("酱")>=0).map(v=>v.n);
+}
+
+function solve(p){
+  const av = AVOIDS.filter(a=>p.avoid.indexOf(a.id)>=0);
+  const pool = ITEMS.map(i=>{
+    const hc = hardCheck(i, av);
+    return {...i, usable:hc.ok, drops:hc.drops};
+  });
+
+  const mains  = pool.filter(i=>i.role==="main"  && i.usable);
+  const sides  = pool.filter(i=>i.role==="side"  && i.usable);
+  const drinks = pool.filter(i=>i.role==="drink" && i.usable);
+
+  const combos = [];
+  for(const m of mains){
+    for(const s of [null, ...sides]){
+      for(const d of [null, ...drinks]){
+        const list = [m, s, d].filter(Boolean);
+        const t = nutOf(list);
+        if(t.sodium > p.sodiumMax) continue;
+        if(t.kcal   > p.kcalMax)   continue;
+        if(t.price  > p.budget)    continue;
+        const prefHit = p.prefer && list.some(i=>i.code===p.prefer);
+        combos.push({list, t, prefHit, drops:list.flatMap(i=>i.drops)});
+      }
+    }
+  }
+  combos.sort((a,b)=> (b.prefHit-a.prefHit) || (b.t.protein-a.t.protein) || (a.t.sodium-b.t.sodium));
+  return {best:combos[0]||null, pool, av, combos};
+}
+
+/* 说明「他想吃的为什么没点」 */
+function explainPrefer(p, pool){
+  if(!p.prefer) return null;
+  const it = pool.find(i=>i.code===p.prefer);
+  if(!it) return null;
+  if(!it.usable) return {type:"hard", item:it,
+    text:`你想点的「${it.name}」含你勾选的禁忌配料，且该配料无法通过特调去掉，所以没有推荐。`};
+  if(it.sodium > p.sodiumMax){
+    const over = Math.round((it.sodium/p.sodiumMax-1)*100);
+    return {type:"sodium", item:it,
+      text:`你想点的「${it.name}」标准配方钠 ${it.sodium} mg，超出你设定的 ${p.sodiumMax} mg 上限约 ${over}%${it.mod.some(v=>v.n.indexOf("酱")>=0)?"；它可以去掉酱，但官方不提供改配后的钠值，因此这一项无法计入达标":""}。已为你换成标准配方就达标的替代。`};
+  }
+  if(it.kcal > p.kcalMax){
+    return {type:"kcal", item:it, text:`你想点的「${it.name}」热量 ${it.kcal} kcal，超出上限 ${p.kcalMax} kcal。`};
+  }
+  if(it.price > p.budget){
+    return {type:"price", item:it, text:`你想点的「${it.name}」单价 ¥${it.price}，超出本餐预算 ¥${p.budget}。`};
+  }
+  return null;
+}
+
+/* ============================================================
+   渲染
+   ============================================================ */
+const $ = id => document.getElementById(id);
+let LAST = null;
+
+function render(){
+  const p = {
+    rel: $("fRel").value,
+    avoid: AVOIDS.filter(a=>document.getElementById("a_"+a.id).checked).map(a=>a.id),
+    sodiumMax: +$("fNa").value,
+    kcalMax: +$("fKcal").value,
+    budget: +$("fBudget").value,
+    prefer: $("fPrefer").value
+  };
+  $("vNa").textContent = p.sodiumMax + " mg";
+  $("vKcal").textContent = p.kcalMax + " kcal";
+  $("vBudget").textContent = "¥" + p.budget;
+  document.querySelectorAll(".chk").forEach(el=>{
+    el.classList.toggle("on", el.querySelector("input").checked);
+  });
+
+  const {best, pool} = solve(p);
+  LAST = {p, best};
+
+  // ---- 偏好提示 ----
+  const ex = explainPrefer(p, pool);
+  $("alertBox").innerHTML = ex ? `<div class="alert warn">${ex.text}</div>`
+    : (best ? "" : `<div class="alert warn">在当前的约束下没有可行组合。试着放宽钠上限、热量上限或预算。</div>`);
+
+  if(!best){
+    $("menuList").innerHTML = "";
+    $("totals").innerHTML = "";
+    $("prepList").innerHTML = `<span class="idle">无可行方案</span>`;
+    $("noteText").textContent = "在当前的约束下没有可行组合，请放宽约束后重试。";
+    return;
+  }
+
+  // ---- 餐单 ----
+  const healthTrim = [];
+  $("menuList").innerHTML = best.list.map(it=>{
+    const dropLabels = it.drops.map(d=>"不要"+d);
+    // 健康改写建议（定性）
+    if(it.sodium > 400 && saucesOf(it).length){
+      const s = saucesOf(it);
+      dropLabels.push(...s.map(x=>"不要"+x));
+      healthTrim.push({item:it, sauces:s});
+    }
+    const modHtml = dropLabels.length
+      ? `<div class="mod">已改写：${dropLabels.join("、")}</div>`
+      : `<div class="mod" style="color:var(--tx3)">正常出餐</div>`;
+    const badge = it.match==="warm"
+      ? `<span class="badge b-warm">营养值存疑${it.note?" · "+it.note:""}</span>`
+      : `<span class="badge b-exact">营养精确匹配</span>`;
+    return `<div class="row"><div><div class="nm">${it.name}${badge}</div>${modHtml}</div>
+      <div class="pr">¥${it.price.toFixed(1)}</div></div>`;
+  }).join("");
+
+  const t = best.t;
+  $("totals").innerHTML = `
+    <div class="tot ${t.price<=p.budget?"ok":"bad"}"><div class="k">合计</div>
+      <div class="v">¥${t.price.toFixed(1)}<small>/ ¥${p.budget}</small></div></div>
+    <div class="tot ok"><div class="k">钠</div>
+      <div class="v">${t.sodium}<small>mg / ${p.sodiumMax}</small></div></div>
+    <div class="tot ok"><div class="k">热量 · 蛋白</div>
+      <div class="v">${t.kcal}<small>kcal · ${t.protein}g</small></div></div>`;
+
+  // ---- 特制清单 ----
+  $("prepList").innerHTML = best.list.map((it,i)=>{
+    const drops = it.drops.map(d=>"不要"+d);
+    if(it.sodium > 400 && saucesOf(it).length) drops.push(...saucesOf(it).map(x=>"不要"+x));
+    return `<div><span class="idx">${i+1}</span>${it.name}</div>` +
+      (drops.length ? drops.map(d=>`<div class="no"><span class="idx">　</span>${d}</div>`).join("")
+                    : `<div class="idle"><span class="idx">　</span>正常</div>`);
+  }).join("");
+
+  // ---- 说明卡 ----
+  const lines = best.list.map((it,i)=>{
+    let drops = it.drops.map(d=>"不要"+d);
+    if(it.sodium > 400 && saucesOf(it).length) drops.push(...saucesOf(it).map(x=>"不要"+x));
+    return `${i+1}. ${it.name}${drops.length?"（"+drops.join("、")+"）":""}`;
+  });
+  const healthNote = healthTrim.length
+    ? "\n去酱是按酱料做的定性调整 —— 官方营养表给的是标准配方值，改配后的数值没有提供，所以上面这些数字是没去酱前的。"
+    : "";
+  const prefNote = ex && ex.type==="sodium" ? `\n你平时爱吃的${ex.item.name}这次没点 —— 它标准配方钠 ${ex.item.sodium} 毫克，超了。` : "";
+  $("noteText").textContent =
+`${p.rel}，这顿我给你点好了：
+
+${lines.join("\n")}
+
+一共 ${t.kcal} 千卡、钠 ${t.sodium} 毫克${t.sodium<=p.sodiumMax?"，在你设的限额内":""}，实付 ¥${t.price.toFixed(1)}。${healthNote}${prefNote}
+
+到店报取餐码就行。`;
+
+  $("trace").textContent =
+    `trace · query-nearby-stores / query-meals / query-meal-detail / list-nutrition-foods · ` +
+    `storeCode=${STORE.code} · 候选 ${ITEMS.length} 项 / 菜单共 ${STORE.menuCount} 项 · 快照 ${STORE.snapshot}`;
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+$("stName").textContent = STORE.name;
+$("stCode").textContent = STORE.code;
+$("stTime").textContent = STORE.snapshot;
+
+$("fAvoid").innerHTML = AVOIDS.map(a=>
+  `<label class="chk"><input type="checkbox" id="a_${a.id}">${a.label}</label>`).join("");
+
+ITEMS.filter(i=>i.role==="main").forEach(i=>{
+  const o=document.createElement("option"); o.value=i.code; o.textContent=i.name;
+  $("fPrefer").appendChild(o);
+});
+$("fPrefer").value = "1406";   // 演示默认：妈爱吃板烧，但高血压
+
+["fRel","fNa","fKcal","fBudget","fPrefer"].forEach(id=>
+  $(id).addEventListener("input", render));
+$("fAvoid").addEventListener("change", render);
+
+function copy(text, btn){
+  const old = btn.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent = "已复制"; setTimeout(()=>btn.textContent=old, 1200);
+  }).catch(()=>{ btn.textContent = "复制失败"; setTimeout(()=>btn.textContent=old, 1200); });
+}
+$("btnCopyPrep").onclick = e => copy($("prepList").innerText, e.target);
+$("btnCopyNote").onclick = e => copy($("noteText").textContent, e.target);
+$("btnCopyOrder").onclick = e => {
+  if(!LAST || !LAST.best) return;
+  const list = LAST.best.list.map(it=>{
+    const drops = it.drops.map(d=>"不要"+d);
+    if(it.sodium > 400 && saucesOf(it).length) drops.push(...saucesOf(it).map(x=>"不要"+x));
+    return `${it.name}${drops.length?"（"+drops.join("、")+"）":""} x1`;
+  });
+  copy(`在门店 ${STORE.code} 到店自取下单：\n${list.join("\n")}\n用 calculate-price 核价后让我确认再下单。`, e.target);
+};
+
+render();
+</script>
+</body>
+</html>
